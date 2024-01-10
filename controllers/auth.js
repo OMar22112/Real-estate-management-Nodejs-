@@ -1,34 +1,53 @@
-// DB CONNECTED
 import db from "../db.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import async from "hbs/lib/async.js";
 
+export const register = async (req, res) => {
+    const { username, email, password, passwordConfirm } = req.body;
 
-export const register = (req, res) => {
-  const { username, email, password, passwordConfirm } = req.body; // Fix typo here
-
-  db.query("SELECT email FROM admins WHERE email = ?", [email], async (error, result) => {
-    if (error) {
-      console.log(error);
-      res.status(500).json({ message: "Internal Server Error" });
-    } else if (result.length > 0) {
-      res.json({ message: "Email already exists" });
-    } else if (password !== passwordConfirm) {
-      res.json({ message: "Passwords do not match" });
-    } else {
-      let hashedPassword = await bcrypt.hash(password, 8);
-      
-      
-    db.query("INSERT INTO admins SET ?", {username:username,email:email,password:hashedPassword}, (error,result)=>{
-        if(error){
-            console.log(error);
-            res.status(500).json({ message: "Internal Server Error" });
-        }else{
-            
-            res.json({ message: "Registration successful" });
-        }
-    });
+    // Fields required
+    if (!username || !email || !password || !passwordConfirm) {
+        return res.status(400).json({ message: "All fields are required" });
     }
-  });
-};
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        return res.status(400).json({ message: "Invalid email format" });
+    }
+    db.query('SELECT * FROM admins WHERE email = ?', [email],async (error, results) => {
+        if (error) {
+            return res.status(500).json({ error: 'Internal Server Error' });
+            }
+        
+            if (results.length > 0) {
+            return res.status(400).json({ error: 'Email already exists' });
+            }
+            if (password.length < 6) {
+                return res.status(400).json({ message: "Password must be at least 6 characters long" });
+            }
+            if (password !== passwordConfirm) {
+                return res.status(400).json({ message: "Passwords do not match" });
+            }
+            
+            const hashedPassword = await bcrypt.hash(password, 8);
+        
+            // Insert new user into the database
+            db.query('INSERT INTO admins (username, email, password) VALUES (?, ?, ?)', [username, email, hashedPassword], (error, results) => {
+            if (error) {
+                return res.status(500).json({ error: 'Internal Server Error' });
+            }
+        
+            res.status(201).json({ message: 'Registration successful' });
+            });
+        });
+    };
+
+
+
+
+
+
+
+
+
+

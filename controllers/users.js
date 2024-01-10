@@ -1,0 +1,74 @@
+import db from "../db.js";
+
+export const showAllUsers = async (req, res) => {
+  try {
+    const { page =1, limit =20 } = req.query;
+    const offset = (page - 1) * limit;
+
+    const dataQuery = `SELECT * FROM users LIMIT ${limit} OFFSET ${offset}`;
+    const countQuery = `SELECT COUNT(*) as total FROM users`;
+
+    const [dataResult, countResult] = await Promise.all([
+      new Promise((resolve, reject) => {
+        db.query(dataQuery, (err, rows) => {
+          if (err) reject(err);
+          resolve(rows);
+        });
+      }),
+      new Promise((resolve, reject) => {
+        db.query(countQuery, (err, result) => {
+          if (err) reject(err);
+          resolve(result[0].total);
+        });
+      }),
+    ]);
+
+    const totalUsers = countResult;
+    const totalPages = Math.ceil(totalUsers / limit);
+
+    // Map through the rows and modify the image field
+    const sanitizedRows = dataResult.map((user) => {
+      return {
+        ...user,
+        image: user.image ? getImageUrl(req, user.image) : null,
+      };
+    });
+
+    res.json({
+      users: sanitizedRows,
+      pageInfo: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        totalUsers,
+        totalPages,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+// Function to get the image URL based on the image data
+const getImageUrl = (req, imageData) => {
+  const imageUrl = generateImageUrl(req, imageData);
+  return imageUrl;
+};
+
+const generateImageUrl = (req, imageData) => {
+  return `${req.protocol}://${req.get('host')}/uploads/${imageData}`;
+};
+
+
+
+
+// CREATE TABLE users (
+//   id INT PRIMARY KEY AUTO_INCREMENT,
+//   username VARCHAR(255),
+//   email VARCHAR(255),
+//   password VARCHAR(255),
+//   phone_no VARCHAR(15),
+//   image LONGBLOB,
+//   description TEXT,
+//   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+// );

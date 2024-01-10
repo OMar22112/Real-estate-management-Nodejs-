@@ -2,10 +2,9 @@ import express from "express";
 import dotenv from "dotenv";
 import path from "path";
 import router from "./routes/auth.js";
-//DB CONNECTED
-import db from "./db.js"
+import db from "./db.js";
 
-dotenv.config({ path:"./.env" });
+dotenv.config({ path: "./.env" });
 
 const app = express();
 const port = 3000;
@@ -13,14 +12,17 @@ const port = 3000;
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
+// Get the current file's directory using import.meta.url
+const __filename = new URL(import.meta.url).pathname;
+const __dirname = path.dirname(__filename);
 
-// app.get("/",(req,res) =>{
-//     res.send("<h1>Hello world</h1>")
-// });
+// Serve static files from the 'uploads' folder
+app.use("/uploads", express.static( "uploads"));
 
-//define Routes
-app.use("/",router)
 
-app.listen(port, ()=>{
-    console.log(`Srever running on port ${port}`);
-})
+// Define Routes
+app.use("/", router);
+
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
+});
