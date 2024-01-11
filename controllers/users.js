@@ -2,7 +2,9 @@ import db from "../db.js";
 
 export const showAllUsers = async (req, res) => {
   try {
-    const { page =1, limit =20 } = req.query;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+
     const offset = (page - 1) * limit;
 
     const dataQuery = `SELECT * FROM users LIMIT ${limit} OFFSET ${offset}`;
@@ -18,12 +20,12 @@ export const showAllUsers = async (req, res) => {
       new Promise((resolve, reject) => {
         db.query(countQuery, (err, result) => {
           if (err) reject(err);
-          resolve(result[0].total);
+          resolve(result);
         });
       }),
     ]);
 
-    const totalUsers = countResult;
+    const totalUsers = countResult.length > 0 ? countResult[0].total : 0;
     const totalPages = Math.ceil(totalUsers / limit);
 
     // Map through the rows and modify the image field
@@ -58,17 +60,3 @@ const getImageUrl = (req, imageData) => {
 const generateImageUrl = (req, imageData) => {
   return `${req.protocol}://${req.get('host')}/uploads/${imageData}`;
 };
-
-
-
-
-// CREATE TABLE users (
-//   id INT PRIMARY KEY AUTO_INCREMENT,
-//   username VARCHAR(255),
-//   email VARCHAR(255),
-//   password VARCHAR(255),
-//   phone_no VARCHAR(15),
-//   image LONGBLOB,
-//   description TEXT,
-//   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-// );
