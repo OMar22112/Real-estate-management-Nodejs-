@@ -16,18 +16,12 @@ function connectDatabase() {
   db.connect((error) => {
     if (error) {
       console.error("MySQL connection error:", error.message);
-      if (error.code === 'PROTOCOL_CONNECTION_LOST') {
-        // Reconnect after a delay
-        setTimeout(connectDatabase, 2000);
-      } else {
-        throw error;
-      }
+      setTimeout(connectDatabase, 2000); // Retry connection after 2 seconds
     } else {
       console.log("MySQL connected...");
     }
   });
 }
-
 
 // Initial connection
 connectDatabase();
