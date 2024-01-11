@@ -9,7 +9,7 @@
     "routes": [
       {
         "src": "/allusers",
-        "dest": "/"
+        "dest": "/allusers"
       },
       {
         "src": "/(.*)",
