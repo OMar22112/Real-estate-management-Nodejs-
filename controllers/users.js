@@ -60,3 +60,19 @@ const getImageUrl = (req, imageData) => {
 const generateImageUrl = (req, imageData) => {
   return `${req.protocol}://${req.get('host')}/uploads/${imageData}`;
 };
+
+
+// -- Drop the existing "users" table if it exists
+// DROP TABLE IF EXISTS users;
+
+// -- Create the new "users" table
+// CREATE TABLE users (
+//     id INT PRIMARY KEY AUTO_INCREMENT,
+//     username VARCHAR(255),
+//     email VARCHAR(255),
+//     password VARCHAR(255),
+//     phone_no VARCHAR(15),
+//     image LONGBLOB,
+//     description TEXT,
+//     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+// );

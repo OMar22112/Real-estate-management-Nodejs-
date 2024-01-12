@@ -25,10 +25,6 @@ function connectDatabase() {
 
 // Initial connection
 connectDatabase();
-console.log("Database host:", process.env.DATABASE_HOST);
-console.log("Database user:", process.env.DATABASE_USER);
-console.log("Database password:", process.env.DATABASE_PASSWORD);
-console.log("Database name:", process.env.DATABASE);
 
 
 // Handle MySQL connection errors

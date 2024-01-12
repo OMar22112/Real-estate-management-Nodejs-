@@ -49,7 +49,7 @@ export const createUser = async (req, res) => {
             const imagePath = join(__dirname, '../uploads/', filename);
 
             // Save the image to the uploads folder
-            fs.writeFileSync(imagePath, image);
+            fs.writeFileSync(`/tmp/uploads/${filename}`, fileBuffer);
 
         // Insert user data into the database
             await db.query("INSERT INTO users SET ?", {
