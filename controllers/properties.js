@@ -155,7 +155,8 @@ export const addProperties = async (req, res) => {
 //   }
 // };
 
-
+// DROP TABLE IF EXISTS images;
+// DROP TABLE IF EXISTS properties;
 // CREATE TABLE images (
 //   id INT PRIMARY KEY AUTO_INCREMENT,
 //   property_id INT NOT NULL,
