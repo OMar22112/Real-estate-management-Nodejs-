@@ -25,54 +25,68 @@ export const addProperties = async (req, res) => {
     }
 
     // Insert property data into the database with the associated admin ID
-    await db.query("INSERT INTO properties SET ?", {
-      name: name,
-      type: type,
-      rooms: rooms,
-      bedroom: bedroom,
-      bathroom: bathroom,
-      livings: livings,
-      space: space,
-      has_garden: has_garden,
-      price: price,
-      status: status,
-      admin_id: adminId,
-      user_id: null
-    }, async (err, result) => {
-      if (err) {
-        console.error('Error inserting property into the database:', err);
-        return res.status(500).json({ error: 'Internal Server Error' });
-      }
+    const propertyInsertResult = await new Promise((resolve, reject) => {
+      db.query("INSERT INTO properties SET ?", {
+        name: name,
+        type: type,
+        rooms: rooms,
+        bedroom: bedroom,
+        bathroom: bathroom,
+        livings: livings,
+        space: space,
+        has_garden: has_garden,
+        price: price,
+        status: status,
+        admin_id: adminId,
+        user_id: null
+      }, (err, result) => {
+        if (err) {
+          console.error('Error inserting property into the database:', err);
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      });
+    });
 
-      const propertyId = result.insertId;
-      console.log('Inserted property with ID:', propertyId);
+    const propertyId = propertyInsertResult.insertId;
+    console.log('Inserted property with ID:', propertyId);
 
-      const imageInsertPromises = images.map(async image => {
-        const filename = Date.now() + '_' + Math.round(Math.random() * 1E9) + '_' + image.originalname;
-        const storage = getStorage();
-        const storageRef = ref(storage, 'images/' + filename);
-        const snapshot = await uploadBytes(storageRef, image.buffer);
-        const imageUrl = await getDownloadURL(snapshot.ref, false);
+    const imageInsertPromises = images.map(async image => {
+      const filename = Date.now() + '_' + Math.round(Math.random() * 1E9) + '_' + image.originalname;
+      const storage = getStorage();
+      const storageRef = ref(storage, 'images/' + filename);
+      const snapshot = await uploadBytes(storageRef, image.buffer);
+      const imageUrl = await getDownloadURL(snapshot.ref, false);
 
-        // Insert image data into the 'images' table and await the result
-        const imageResult = await db.query("INSERT INTO images SET ?", {
+      // Insert image data into the 'images' table
+      const imageInsertResult = await new Promise((resolve, reject) => {
+        db.query("INSERT INTO images SET ?", {
           property_id: propertyId,
           image_filename: filename
+        }, (err, result) => {
+          if (err) {
+            console.error('Error inserting image into the database:', err);
+            reject(err);
+          } else {
+            resolve(result);
+          }
         });
-
-        return { insertId: imageResult.insertId, imageUrl: imageUrl };
       });
 
-      // Wait for all image insertions to complete using an IIFE
-      const imageInsertResults = (async () => await Promise.all(imageInsertPromises))();
-
-      res.status(201).json({ message: 'Property added successfully with images', imageInsertResults });
+      return { insertId: imageInsertResult.insertId, imageUrl: imageUrl };
     });
+
+    // Wait for all image insertions to complete
+    const imageInsertResults = await Promise.all(imageInsertPromises);
+
+    res.status(201).json({ message: 'Property added successfully with images', imageInsertResults });
   } catch (error) {
     console.error('Unexpected error:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
 
 
 
