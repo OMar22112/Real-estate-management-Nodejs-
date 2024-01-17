@@ -25,7 +25,7 @@ export const addProperties = async (req, res) => {
     const snapshot = await uploadBytes(storageRef, req.file.buffer);
 
     // Get the download URL for the uploaded image
-    const imageUrl = await getDownloadURL(snapshot.ref);
+    const imageUrl = await getDownloadURL(snapshot.ref, false);
 
     // Insert property data into the database with the associated admin ID and image filename
     await db.query(
