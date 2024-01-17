@@ -27,10 +27,15 @@ export const getAllProperties = async (req, res) => {
       LEFT JOIN admins a ON p.admin_id = a.id
     `;
     
-    const properties = await db.query(propertiesQuery);
+    const propertiesResult = await db.query(propertiesQuery);
+    
+    // Check if propertiesResult is an array
+    if (!Array.isArray(propertiesResult)) {
+      throw new Error('Properties data is not in the expected format.');
+    }
 
     // Fetch and append image URLs to the result
-    const propertiesWithImageUrls = await Promise.all(properties.map(async property => {
+    const propertiesWithImageUrls = await Promise.all(propertiesResult.map(async property => {
       const imageUrl = property.image_filename
         ? await getImageUrl(req, property.image_filename)
         : null;
