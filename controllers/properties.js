@@ -28,7 +28,7 @@ export const addProperties = async (req, res) => {
     const imageUrl = await getDownloadURL(snapshot.ref, false);
 
     // Insert property data into the database with the associated admin ID and image filename
-    await db.query("INSERT INTO properties SET ?", {
+    const prop = await db.query("INSERT INTO properties SET ?", {
       name: name,
       type: type,
       rooms: rooms,
@@ -48,7 +48,7 @@ export const addProperties = async (req, res) => {
     //console.log('Database Insert Result:', insertResult);
 
     // Respond with a success message and the generated URL
-    res.status(201).json({ message: 'Property added successfully', imageUrl });
+    res.status(201).json({ message: 'Property added successfully', imageUrl, prop });
   } catch (error) {
     console.error('Error adding property:', error);
     res.status(500).json({ error: 'Internal Server Error' });
