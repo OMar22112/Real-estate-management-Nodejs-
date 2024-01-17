@@ -57,7 +57,7 @@ export const addProperties = async (req, res) => {
     });
 
     // Respond with a success message and the generated URL
-    res.status(201).json({ message: 'Property added successfully', imageUrl, propertyInsertResult });
+    res.status(201).json({ message: 'Property added successfully', imageUrl });
   } catch (error) {
     console.error('Error adding property:', error);
     res.status(500).json({ error: 'Internal Server Error' });
