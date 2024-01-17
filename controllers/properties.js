@@ -5,6 +5,8 @@ import firebaseConfig from '../config/firebaseConfig.js';
 
 initializeApp(firebaseConfig);
 
+// ... (your imports)
+
 export const addProperties = async (req, res) => {
   try {
     const { name, type, rooms, bedroom, bathroom, livings, space, has_garden, price, status } = req.body;
@@ -19,58 +21,59 @@ export const addProperties = async (req, res) => {
     }
 
     // Validate image upload (min 1 image, max 5 images)
-    const images = req.files; // Using req.files, as you are using upload.array("images", 5)
+    const images = req.files;
     if (!images || images.length < 1 || images.length > 5) {
       return res.status(400).json({ error: 'You must upload between 1 and 5 images.' });
     }
 
-    const propertyInsertPromises = images.map(async image => {
-      // Create a unique filename
-      const filename = Date.now() + '_' + Math.round(Math.random() * 1E9) + '_' + image.originalname;
-
-      // Get the Firebase Storage reference
-      const storage = getStorage();
-
-      // Create a reference to the storage bucket (change 'images' to your desired folder name)
-      const storageRef = ref(storage, 'images/' + filename);
-
-      // Upload image to Firebase Cloud Storage
-      const snapshot = await uploadBytes(storageRef, image.buffer);
-
-      // Get the download URL for the uploaded image
-      const imageUrl = await getDownloadURL(snapshot.ref, false);
-
-      // Insert property data into the database with the associated admin ID and image filename
-      const result = await db.query("INSERT INTO properties SET ?", {
-        name: name,
-        type: type,
-        rooms: rooms,
-        bedroom: bedroom,
-        bathroom: bathroom,
-        livings: livings,
-        space: space,
-        has_garden: has_garden,
-        price: price,
-        image_filename: filename,
-        status: status,
-        admin_id: adminId,
-        user_id: null // Assuming user_id is nullable or you need to provide a value
-      });
-
-      // Extract only necessary information from the result
-      return { insertId: result.insertId, imageUrl: imageUrl };
+    // Insert property data into the database with the associated admin ID
+    const result = await db.query("INSERT INTO properties SET ?", {
+      name: name,
+      type: type,
+      rooms: rooms,
+      bedroom: bedroom,
+      bathroom: bathroom,
+      livings: livings,
+      space: space,
+      has_garden: has_garden,
+      price: price,
+      status: status,
+      admin_id: adminId,
+      user_id: null
     });
 
-    // Wait for all property insertions to complete
-    const propertyInsertResults = await Promise.all(propertyInsertPromises);
+    // Get the property ID from the insert result
+    const propertyId = result.insertId;
 
-    // Respond with a success message and the generated URLs
-    res.status(201).json({ message: 'Properties added successfully', propertyInsertResults });
+    // Insert image data into the database with the associated property ID
+    const imageInsertPromises = images.map(async image => {
+      const filename = Date.now() + '_' + Math.round(Math.random() * 1E9) + '_' + image.originalname;
+      const storage = getStorage();
+      const storageRef = ref(storage, 'images/' + filename);
+      const snapshot = await uploadBytes(storageRef, image.buffer);
+      const imageUrl = await getDownloadURL(snapshot.ref, false);
+
+      // Insert image data into the 'images' table
+      const imageResult = await db.query("INSERT INTO images SET ?", {
+        property_id: propertyId,
+        image_filename: filename
+      });
+    
+      // Extract only necessary information from the image result
+      return { insertId: imageResult.insertId, imageUrl: imageUrl };
+    });
+    
+    // Wait for all image insertions to complete
+    const imageInsertResults = await Promise.all(imageInsertPromises);
+
+    // Respond with a success message
+    res.status(201).json({ message: 'Property added successfully with images', imageInsertResults });
   } catch (error) {
-    console.error('Error adding properties:', error);
+    console.error('Error adding property with images:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
 
 
 
