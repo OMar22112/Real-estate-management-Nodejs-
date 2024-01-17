@@ -34,11 +34,16 @@ export const getAllProperties = async (req, res) => {
 
     // Fetch and append image URLs to the result
     const propertiesWithImageUrls = await Promise.all(propertiesArray.map(async property => {
-      const imageUrl = property.image_filename
-        ? await getImageUrl(req, property.image_filename)
-        : null;
+      try {
+        const imageUrl = property.image_filename
+          ? await getImageUrl(req, property.image_filename)
+          : null;
 
-      return { ...property, imageUrl };
+        return { ...property, imageUrl };
+      } catch (error) {
+        console.error('Error getting image URL for property:', property.property_id, error);
+        return { ...property, imageUrl: null };
+      }
     }));
 
     // Create a new object without circular references
@@ -75,6 +80,11 @@ export const getAllProperties = async (req, res) => {
 
 // Function to get the image URL based on the image filename
 const getImageUrl = async (req, imageFilename) => {
-  const imageUrl = await getDownloadURL(ref(getStorage(), `images/${imageFilename}`), false);
-  return imageUrl;
+  try {
+    const imageUrl = await getDownloadURL(ref(getStorage(), `images/${imageFilename}`), false);
+    return imageUrl;
+  } catch (error) {
+    console.error('Error getting image URL:', error);
+    throw error; // Rethrow the error to handle it in the calling function
+  }
 };
