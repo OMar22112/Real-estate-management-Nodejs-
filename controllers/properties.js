@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import db from '../db.js';
+import db from "../db.js";
 import firebaseConfig from '../config/firebaseConfig.js';
 
 initializeApp(firebaseConfig);
@@ -28,19 +28,31 @@ export const addProperties = async (req, res) => {
     const imageUrl = await getDownloadURL(snapshot.ref, false);
 
     // Insert property data into the database with the associated admin ID and image filename
-    await db.query(
-      'INSERT INTO properties (name, type, rooms, bedroom, bathroom, livings, space, has_garden, price, image, status, admin_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [name, type, rooms, bedroom, bathroom, livings, space, has_garden, price, filename, status, adminId]
-    );
+    await db.query("INSERT INTO properties SET ?", {
+      name: name,
+      type: type,
+      rooms: rooms,
+      bedroom: bedroom,
+      bathroom: bathroom, // Save the filename in the database
+      livings: livings,
+      space: space,
+      has_garden: has_garden,
+      price: price,
+      status: status,
+      price: price,
+      adminId
+  });
+
+    // Check the result of the database insertion
+    //console.log('Database Insert Result:', insertResult);
 
     // Respond with a success message and the generated URL
     res.status(201).json({ message: 'Property added successfully', imageUrl });
   } catch (error) {
-    console.error(error);
+    console.error('Error adding property:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
-
 
 
 // CREATE TABLE properties (
