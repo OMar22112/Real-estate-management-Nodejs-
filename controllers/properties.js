@@ -5,10 +5,6 @@ import firebaseConfig from '../config/firebaseConfig.js';
 
 initializeApp(firebaseConfig);
 
-// ... (your imports)
-
-// ... (your imports)
-
 export const addProperties = async (req, res) => {
   try {
     const { name, type, rooms, bedroom, bathroom, livings, space, has_garden, price, status } = req.body;
@@ -55,23 +51,26 @@ export const addProperties = async (req, res) => {
       const snapshot = await uploadBytes(storageRef, image.buffer);
       const imageUrl = await getDownloadURL(snapshot.ref, false);
 
-      // Insert image data into the 'images' table
-      return db.query("INSERT INTO images SET ?", {
+      // Insert image data into the 'images' table and await the result
+      const imageResult = await db.query("INSERT INTO images SET ?", {
         property_id: propertyId,
         image_filename: filename
       });
+
+      return { insertId: imageResult.insertId, imageUrl: imageUrl };
     });
 
     // Wait for all image insertions to complete
-    await Promise.all(imageInsertPromises);
+    const imageInsertResults = await Promise.all(imageInsertPromises);
 
-    // Respond with a success message
-    res.status(201).json({ message: 'Property added successfully with images' });
+    // Respond with a success message and the generated URLs
+    res.status(201).json({ message: 'Property added successfully with images', imageInsertResults });
   } catch (error) {
     console.error('Error adding property with images:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
 
 
 
@@ -140,22 +139,29 @@ export const addProperties = async (req, res) => {
 // };
 
 
+// CREATE TABLE images (
+//   id INT PRIMARY KEY AUTO_INCREMENT,
+//   property_id INT NOT NULL,
+//   image_filename VARCHAR(255) NOT NULL,
+//   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+//   FOREIGN KEY (property_id) REFERENCES properties(id)
+// );
+
 // CREATE TABLE properties (
-//     id INT PRIMARY KEY AUTO_INCREMENT,
-//     name VARCHAR(255) NOT NULL,
-//     type VARCHAR(255) NOT NULL,
-//     rooms INT NOT NULL,
-//     bedroom INT NOT NULL,
-//     bathroom INT NOT NULL,
-//     livings INT NOT NULL,
-//     space INT NOT NULL,
-//     has_garden BOOLEAN NOT NULL,
-//     price DECIMAL(10, 2) NOT NULL,
-//     image_filename VARCHAR(255) NOT NULL,
-//     status BOOLEAN NOT NULL,
-//     admin_id INT,
-//     user_id INT,
-//     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Added 'created_at' column
-//     FOREIGN KEY (admin_id) REFERENCES admins(id),
-//     FOREIGN KEY (user_id) REFERENCES users(id)
-//   );
+//   id INT PRIMARY KEY AUTO_INCREMENT,
+//   name VARCHAR(255) NOT NULL,
+//   type VARCHAR(255) NOT NULL,
+//   rooms INT NOT NULL,
+//   bedroom INT NOT NULL,
+//   bathroom INT NOT NULL,
+//   livings INT NOT NULL,
+//   space INT NOT NULL,
+//   has_garden BOOLEAN NOT NULL,
+//   price DECIMAL(10, 2) NOT NULL,
+//   status BOOLEAN NOT NULL,
+//   admin_id INT,
+//   user_id INT,
+//   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+//   FOREIGN KEY (admin_id) REFERENCES admins(id),
+//   FOREIGN KEY (user_id) REFERENCES users(id)
+// );
