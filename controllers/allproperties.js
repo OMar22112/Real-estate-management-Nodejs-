@@ -41,7 +41,16 @@ export const getAllProperties = async (req, res) => {
       return { ...property, imageUrl };
     }));
 
-    res.status(200).json(propertiesWithImageUrls);
+    // Create a new object without circular references
+    const sanitizedProperties = propertiesWithImageUrls.map(property => {
+      const sanitizedProperty = { ...property };
+      // Exclude properties that lead to circular references
+      delete sanitizedProperty._object;
+      delete sanitizedProperty._timer;
+      return sanitizedProperty;
+    });
+
+    res.status(200).json(sanitizedProperties);
   } catch (error) {
     console.error('Error retrieving properties:', error);
     res.status(500).json({ error: 'Internal Server Error' });
