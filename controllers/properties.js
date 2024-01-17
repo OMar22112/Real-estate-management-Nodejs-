@@ -40,3 +40,25 @@ export const addProperties = async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
+
+
+// CREATE TABLE properties (
+//     id INT PRIMARY KEY AUTO_INCREMENT,
+//     name VARCHAR(255) NOT NULL,
+//     type VARCHAR(255) NOT NULL,
+//     rooms INT NOT NULL,
+//     bedroom INT NOT NULL,
+//     bathroom INT NOT NULL,
+//     livings INT NOT NULL,
+//     space INT NOT NULL,
+//     has_garden BOOLEAN NOT NULL,
+//     price DECIMAL(10, 2) NOT NULL,
+//     image_filename VARCHAR(255) NOT NULL,
+//     status BOOLEAN NOT NULL,
+//     admin_id INT,
+//     user_id INT,
+//     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Added 'created_at' column
+//     FOREIGN KEY (admin_id) REFERENCES admins(id),
+//     FOREIGN KEY (user_id) REFERENCES users(id)
+//   );
