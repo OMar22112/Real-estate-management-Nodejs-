@@ -22,7 +22,7 @@ app.use("/uploads", express.static("uploads"));
 
 // Define Routes
 app.use("/", authRouter); // Mount the authentication-related routes under the root URL ("/")
-app.use("/", propertyRouter); // Mount the property-related routes under the '/property' URL
+app.use("/property", propertyRouter); // Mount the property-related routes under the '/property' URL
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
