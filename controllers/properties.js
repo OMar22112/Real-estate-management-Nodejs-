@@ -33,14 +33,15 @@ export const addProperties = async (req, res) => {
       type: type,
       rooms: rooms,
       bedroom: bedroom,
-      bathroom: bathroom, // Save the filename in the database
+      bathroom: bathroom,
       livings: livings,
       space: space,
       has_garden: has_garden,
       price: price,
+      image_filename: filename,
       status: status,
-      price: price,
-      adminId
+      admin_id: adminId,
+      user_id: null // Assuming user_id is nullable or you need to provide a value
   });
 
     // Check the result of the database insertion
