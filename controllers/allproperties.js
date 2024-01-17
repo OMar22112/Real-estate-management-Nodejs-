@@ -43,11 +43,27 @@ export const getAllProperties = async (req, res) => {
 
     // Create a new object without circular references
     const sanitizedProperties = propertiesWithImageUrls.map(property => {
-      const sanitizedProperty = { ...property };
-      // Exclude properties that lead to circular references
-      delete sanitizedProperty._object;
-      delete sanitizedProperty._timer;
-      return sanitizedProperty;
+      // Extract only the necessary properties from the db object
+      const { property_id, name, type, rooms, bedroom, bathroom, livings, space, has_garden, price, status, image_id, image_filename, image_created_at, added_by_username, added_by_type } = property;
+      
+      return {
+        property_id,
+        name,
+        type,
+        rooms,
+        bedroom,
+        bathroom,
+        livings,
+        space,
+        has_garden,
+        price,
+        status,
+        image_id,
+        image_filename,
+        image_created_at,
+        added_by_username,
+        added_by_type,
+      };
     });
 
     res.status(200).json(sanitizedProperties);
