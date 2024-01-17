@@ -28,7 +28,9 @@ export const getAllProperties = async (req, res) => {
     `;
     
     const propertiesResult = await db.query(propertiesQuery);
-    
+
+    console.log('Properties Result:', propertiesResult);
+
     // Check if propertiesResult is an array
     if (!Array.isArray(propertiesResult)) {
       throw new Error('Properties data is not in the expected format.');
