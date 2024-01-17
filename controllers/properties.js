@@ -19,58 +19,50 @@ export const addProperties = async (req, res) => {
     }
 
     // Validate image upload (min 1 image, max 5 images)
-    const images = req.files; // Assuming you are using multer to handle file uploads
-    if (!images || images.length < 1 || images.length > 5) {
-      return res.status(400).json({ error: 'You must upload between 1 and 5 images.' });
+    const image = req.file; // Using req.file, as you are using upload.single("image")
+    if (!image) {
+      return res.status(400).json({ error: 'You must upload an image.' });
     }
 
-    const propertyInsertPromises = images.map(async image => {
-      // Create a unique filename
-      const filename = Date.now() + '_' + Math.round(Math.random() * 1E9) + '_' + image.originalname;
+    // Create a unique filename
+    const filename = Date.now() + '_' + Math.round(Math.random() * 1E9) + '_' + image.originalname;
 
-      // Get the Firebase Storage reference
-      const storage = getStorage();
+    // Get the Firebase Storage reference
+    const storage = getStorage();
 
-      // Create a reference to the storage bucket (change 'images' to your desired folder name)
-      const storageRef = ref(storage, 'images/' + filename);
+    // Create a reference to the storage bucket (change 'images' to your desired folder name)
+    const storageRef = ref(storage, 'images/' + filename);
 
-      // Upload image to Firebase Cloud Storage
-      const snapshot = await uploadBytes(storageRef, image.buffer);
+    // Upload image to Firebase Cloud Storage
+    const snapshot = await uploadBytes(storageRef, image.buffer);
 
-      // Get the download URL for the uploaded image
-      const imageUrl = await getDownloadURL(snapshot.ref, false);
+    // Get the download URL for the uploaded image
+    const imageUrl = await getDownloadURL(snapshot.ref, false);
 
-      // Insert property data into the database with the associated admin ID and image filename
-      return db.query("INSERT INTO properties SET ?", {
-        name: name,
-        type: type,
-        rooms: rooms,
-        bedroom: bedroom,
-        bathroom: bathroom,
-        livings: livings,
-        space: space,
-        has_garden: has_garden,
-        price: price,
-        image_filename: filename,
-        status: status,
-        admin_id: adminId,
-        user_id: null // Assuming user_id is nullable or you need to provide a value
-      });
+    // Insert property data into the database with the associated admin ID and image filename
+    const propertyInsertResult = await db.query("INSERT INTO properties SET ?", {
+      name: name,
+      type: type,
+      rooms: rooms,
+      bedroom: bedroom,
+      bathroom: bathroom,
+      livings: livings,
+      space: space,
+      has_garden: has_garden,
+      price: price,
+      image_filename: filename,
+      status: status,
+      admin_id: adminId,
+      user_id: null // Assuming user_id is nullable or you need to provide a value
     });
 
-    // Wait for all property insertions to complete
-    const propertyInsertResults = await Promise.all(propertyInsertPromises);
-
-    // Respond with a success message and the generated URLs
-    res.status(201).json({ message: 'Properties added successfully', propertyInsertResults });
+    // Respond with a success message and the generated URL
+    res.status(201).json({ message: 'Property added successfully', imageUrl, propertyInsertResult });
   } catch (error) {
-    console.error('Error adding properties:', error);
+    console.error('Error adding property:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
-
-
-
 
 
 
