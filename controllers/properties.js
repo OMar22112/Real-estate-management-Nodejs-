@@ -41,7 +41,7 @@ export const addProperties = async (req, res) => {
       const imageUrl = await getDownloadURL(snapshot.ref, false);
 
       // Insert property data into the database with the associated admin ID and image filename
-      return db.query("INSERT INTO properties SET ?", {
+      const result = await db.query("INSERT INTO properties SET ?", {
         name: name,
         type: type,
         rooms: rooms,
@@ -56,6 +56,9 @@ export const addProperties = async (req, res) => {
         admin_id: adminId,
         user_id: null // Assuming user_id is nullable or you need to provide a value
       });
+
+      // Extract only necessary information from the result
+      return { insertId: result.insertId, imageUrl: imageUrl };
     });
 
     // Wait for all property insertions to complete
@@ -68,6 +71,7 @@ export const addProperties = async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
 
 
 
