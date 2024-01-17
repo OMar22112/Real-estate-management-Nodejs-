@@ -35,7 +35,7 @@ export const getAllProperties = async (req, res) => {
         console.log('Properties:', properties);
     
         // Fetch and append image URLs to the result
-        const propertiesWithImageUrls = await Promise.all(properties.map(async property => {
+        const propertiesWithImageUrls = await Promise.all((properties._results || []).map(async property => {
             const imageUrl = property.image_filename
                 ? await getDownloadURL(ref(getStorage(), `images/${property.image_filename}`), false)
                 : null;
