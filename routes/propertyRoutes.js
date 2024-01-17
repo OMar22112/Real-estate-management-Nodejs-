@@ -7,11 +7,11 @@ import multer from "multer";
 // Create a router
 const router = express.Router();
 const upload = multer({
-    limits: {
-      fileSize: 10 * 1024 * 1024, // Adjust the limit as needed (e.g., 10 MB)
-    },
-  });
+  limits: {
+    fileSize: 10 * 1024 * 1024, // Adjust the limit as needed (e.g., 10 MB)
+  },
+});
 // Route to add a property, protected with authenticateAdmin middleware
-router.post('/add', authenticateAdmin, upload.single("image"), addProperties);
+router.post('/add', authenticateAdmin, upload.array("images", 5), addProperties);
 // Export the router
 export default router;
