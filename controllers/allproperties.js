@@ -29,15 +29,11 @@ export const getAllProperties = async (req, res) => {
     
     const propertiesResult = await db.query(propertiesQuery);
 
-    console.log('Properties Result:', propertiesResult);
-
-    // Check if propertiesResult is an array
-    if (!Array.isArray(propertiesResult)) {
-      throw new Error('Properties data is not in the expected format.');
-    }
+    // Ensure propertiesResult is an array
+    const propertiesArray = Array.isArray(propertiesResult) ? propertiesResult : [propertiesResult];
 
     // Fetch and append image URLs to the result
-    const propertiesWithImageUrls = await Promise.all(propertiesResult.map(async property => {
+    const propertiesWithImageUrls = await Promise.all(propertiesArray.map(async property => {
       const imageUrl = property.image_filename
         ? await getImageUrl(req, property.image_filename)
         : null;
