@@ -7,6 +7,8 @@ initializeApp(firebaseConfig);
 
 // ... (your imports)
 
+// ... (your imports)
+
 export const addProperties = async (req, res) => {
   try {
     const { name, type, rooms, bedroom, bathroom, livings, space, has_garden, price, status } = req.body;
@@ -54,25 +56,23 @@ export const addProperties = async (req, res) => {
       const imageUrl = await getDownloadURL(snapshot.ref, false);
 
       // Insert image data into the 'images' table
-      const imageResult = await db.query("INSERT INTO images SET ?", {
+      return db.query("INSERT INTO images SET ?", {
         property_id: propertyId,
         image_filename: filename
       });
-    
-      // Extract only necessary information from the image result
-      return { insertId: imageResult.insertId, imageUrl: imageUrl };
     });
-    
+
     // Wait for all image insertions to complete
-    const imageInsertResults = await Promise.all(imageInsertPromises);
+    await Promise.all(imageInsertPromises);
 
     // Respond with a success message
-    res.status(201).json({ message: 'Property added successfully with images', imageInsertResults });
+    res.status(201).json({ message: 'Property added successfully with images' });
   } catch (error) {
     console.error('Error adding property with images:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
 
 
 
