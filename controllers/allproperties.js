@@ -22,7 +22,7 @@ export const getAllProperties = async (req, res) => {
       return res.status(404).json({ message: 'No properties found' });
     }
 
-    // Iterate through each property to fetch associated images with full URLs
+    // Fetch associated images with full URLs for each property
     const propertiesWithImages = await Promise.all(properties.map(async (property) => {
       // Fetch images for the current property from the 'images' table
       const images = await new Promise((resolve, reject) => {
@@ -41,7 +41,7 @@ export const getAllProperties = async (req, res) => {
       });
 
       // Attach the image URLs array to the property object
-      return {  imageUrls: await Promise.all(images) };
+      return { ...property, imageUrls: await Promise.all(images) };
     }));
 
     res.status(200).json({ properties: propertiesWithImages });
