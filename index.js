@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import path from "path";
 import authRouter from "./routes/auth.js"; // Assuming this is your authentication-related router
 import propertyRouter from "./routes/propertyRoutes.js"; // Assuming this is your property-related router
-import pool from "./db.js";
+import db from "./db.js";
 
 dotenv.config({ path: "./.env" });
 
