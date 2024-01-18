@@ -41,7 +41,7 @@ export const getAllProperties = async (req, res) => {
       });
 
       // Attach the image URLs array to the property object
-      return { id: property.id, name: property.name, imageUrls: await Promise.all(images) };
+      return { properties:properties, imageUrls: await Promise.all(images) };
     }));
 
     res.status(200).json({ properties: propertiesWithImages });
