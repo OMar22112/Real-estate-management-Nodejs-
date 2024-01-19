@@ -1,4 +1,23 @@
-import db from "../db.js";
+import { getStorage, ref, getDownloadURL } from "firebase/storage";
+import firebaseConfig from '../config/firebaseConfig.js';
+import { initializeApp } from "firebase/app";
+
+
+// Initialize Firebase
+initializeApp(firebaseConfig);
+
+// Function to get the image URL based on the image data from Firebase Storage
+const getImageUrl = async (imageData) => {
+  try {
+    const storage = getStorage();
+    const imageRef = ref(storage, 'userimages/' + imageData);
+    const imageUrl = await getDownloadURL(imageRef);
+    return imageUrl;
+  } catch (error) {
+    console.error('Error generating image URL:', error);
+    return null;
+  }
+};
 
 export const showAllUsers = async (req, res) => {
   try {
@@ -29,12 +48,12 @@ export const showAllUsers = async (req, res) => {
     const totalPages = Math.ceil(totalUsers / limit);
 
     // Map through the rows and modify the image field
-    const sanitizedRows = dataResult.map((user) => {
+    const sanitizedRows = await Promise.all(dataResult.map(async (user) => {
       return {
         ...user,
-        image: user.image ? getImageUrl(req, user.image) : null,
+        image: user.image ? await getImageUrl(user.image) : null,
       };
-    });
+    }));
 
     res.json({
       users: sanitizedRows,
@@ -51,15 +70,6 @@ export const showAllUsers = async (req, res) => {
   }
 };
 
-// Function to get the image URL based on the image data
-const getImageUrl = (req, imageData) => {
-  const imageUrl = generateImageUrl(req, imageData);
-  return imageUrl;
-};
-
-const generateImageUrl = (req, imageData) => {
-  return `${req.protocol}://${req.get('host')}/uploads/${imageData}`;
-};
 
 
 // -- Drop the existing "users" table if it exists
