@@ -23,7 +23,7 @@ const upload = multer({
 router.post("/register",register);
 router.post("/login",login);
 router.post("/createuser", authenticateAdmin, upload.single('image') ,createUser);
-router.post("/edituser/:userId", authenticateAdmin, editUser);
+router.post("/edituser/:userId", authenticateAdmin,upload.single('image'), editUser);
 router.delete("/deleteuser/:userId", authenticateAdmin, deleteUser);
 router.get("/allusers", authenticateAdmin, showAllUsers);
 router.get("/newestusers", authenticateAdmin, newestUsers);
