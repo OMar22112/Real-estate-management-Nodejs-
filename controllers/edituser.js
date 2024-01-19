@@ -1,31 +1,18 @@
 import db from "../db.js";
 import bcrypt from "bcryptjs";
-import multer from "multer";
-import path from 'path';
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { initializeApp } from "firebase/app";
-import firebaseConfig from '../config/firebaseConfig.js';
-
-initializeApp(firebaseConfig);
 
 export const editUser = async (req, res) => {
-    try {
-        const userId = req.params.userId;
-        const { username, email, password, phone_no, description } = req.body;
+    const userId = req.params.userId;
+    const { username, email, password, phone_no, image, description } = req.body;
 
-        // Check if the user exists
-        const existingUser = await new Promise((resolve, reject) => {
-            db.query('SELECT * FROM users WHERE id = ?', [userId], (error, results) => {
-                if (error) {
-                    console.error('Error checking existing user:', error);
-                    reject(error);
-                } else {
-                    resolve(results);
-                }
-            });
-        });
+    // Check if the user exists
+    db.query("SELECT * FROM users WHERE id = ?", [userId], async (err, results) => {
+        if (err) {
+            console.log(err);
+            return res.status(500).json({ message: "Internal Server Error" });
+        }
 
-        if (existingUser.length === 0) {
+        if (results.length === 0) {
             return res.status(404).json({ message: "User not found" });
         }
 
@@ -34,10 +21,11 @@ export const editUser = async (req, res) => {
         }
 
         const updatedUser = {
-            username: username || existingUser[0].username,
-            email: email || existingUser[0].email,
-            phone_no: phone_no || existingUser[0].phone_no,
-            description: description || existingUser[0].description,
+            username: username || results[0].username,
+            email: email || results[0].email,
+            phone_no: phone_no || results[0].phone_no,
+            image: image || results[0].image,
+            description: description || results[0].description,
         };
 
         if (password) {
@@ -45,20 +33,7 @@ export const editUser = async (req, res) => {
             updatedUser.password = hashedPassword;
         }
 
-        if (req.file) {
-            // If a new image is provided, upload it to Firebase Storage
-            const filename = Date.now() + '_' + Math.round(Math.random() * 1E9) + path.extname(req.file.originalname);
-            const storage = getStorage();
-            const storageRef = ref(storage, 'userimages/' + filename);
-            const snapshot = await uploadBytes(storageRef, req.file.buffer);
-            updatedUser.image = filename; // Update the image filename in the database
-        }
-
         await db.query("UPDATE users SET ? WHERE id = ?", [updatedUser, userId]);
-
         res.json({ message: "User updated successfully" });
-    } catch (error) {
-        console.error('Unexpected error:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
+    });
 };
