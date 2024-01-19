@@ -5,14 +5,14 @@ export const editUser = async (req, res) => {
     const userId = req.params.userId;
     const { username, email, password, phone_no, image, description } = req.body;
 
-    // Check if the user exists
-    const userExist = await db.query("SELECT * FROM users WHERE id = ?", [userId]);
-
-    if (userExist.length === 0) {
-        return res.status(404).json({ message: "User not found" });
-    }
-
     try {
+        // Check if the user exists
+        const userExist = await db.query("SELECT * FROM users WHERE id = ?", [userId]);
+
+        if (userExist.length === 0) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
         if (password && password.length < 6) {
             return res.status(400).json({ message: "Password must be at least 6 characters long" });
         }
