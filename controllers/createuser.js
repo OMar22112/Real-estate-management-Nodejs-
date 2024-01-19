@@ -2,6 +2,9 @@ import { initializeApp } from "firebase/app";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import db from "../db.js";
 import firebaseConfig from '../config/firebaseConfig.js';
+import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
+import multer from "multer";
 
 initializeApp(firebaseConfig);
 
