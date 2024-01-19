@@ -5,6 +5,10 @@ import firebaseConfig from '../config/firebaseConfig.js';
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import multer from "multer";
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+import fs from "fs";
 
 initializeApp(firebaseConfig);
 
