@@ -1,6 +1,8 @@
 import { getStorage, ref, getDownloadURL } from "firebase/storage";
 import firebaseConfig from '../config/firebaseConfig.js';
 import { initializeApp } from "firebase/app";
+import db from "../db.js";
+
 
 
 // Initialize Firebase
