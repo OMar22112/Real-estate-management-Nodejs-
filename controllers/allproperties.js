@@ -7,7 +7,7 @@ export const getAllProperties = async (req, res) => {
   try {
     // Fetch all properties from the 'properties' table
     const properties = await new Promise((resolve, reject) => {
-      db.query("SELECT properties.id, properties.name, properties.type, properties.rooms, properties.bedroom, properties.bathroom, properties.livings, properties.space, properties.has_garden, properties.price, properties.status, properties.admin_id, admin.username AS admin_username, admin.type AS admin_type, properties.created_at, images.image_filename FROM properties LEFT JOIN admins AS admin ON properties.admin_id = admin.id LEFT JOIN images ON properties.id = images.property_id;", (err, results) => {
+      db.query("SELECT properties.id, properties.name, ..., GROUP_CONCAT(images.image_filename) AS image_filenames FROM properties LEFT JOIN admins AS admin ON properties.admin_id = admin.id LEFT JOIN images ON properties.id = images.property_id GROUP BY properties.id;", (err, results) => {
         if (err) {
           console.error('Error fetching properties from the database:', err);
           reject(err);
