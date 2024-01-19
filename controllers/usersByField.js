@@ -8,7 +8,7 @@ export const usersByField = async (req, res) => {
         if (id) conditions.push(`id = ${parseInt(id)}`);
         if (username) conditions.push(`username = '${username}'`);
         if (email) conditions.push(`email = '${email}'`);
-        if (phone) conditions.push(`phone = '${phone}'`);
+        if (phone) conditions.push(`phone_no = '${phone}'`);
 
         let query = "SELECT * FROM users";
 
@@ -16,17 +16,16 @@ export const usersByField = async (req, res) => {
             query += ` WHERE ${conditions.join(" AND ")}`;
         }
 
-        db.query(query, (err, rows) => {
+        db.query(query, async (err, rows) => {
             if (!err) {
                 // Map through the rows and modify the image field
-                const sanitizedRows = rows.map((user) => {
+                const sanitizedRows = await Promise.all(rows.map(async (user) => {
                     return {
                         ...user,
-                        image: user.image ? getImageUrl(req, user.image) : null,
+                        image: user.image ? await getImageUrl(req, user.image) : null,
                     };
-                });
+                }));
 
-                //console.log(sanitizedRows);
                 res.json(sanitizedRows);
             } else {
                 console.log(err);
@@ -39,19 +38,15 @@ export const usersByField = async (req, res) => {
     }
 };
 
-// Function to get the image URL based on the image data
-const getImageUrl = (req, imageData) => {
-    // Assuming you have a function to generate the image URL from the image data
-    // Replace the following line with the actual logic for getting the image URL
-    const imageUrl = generateImageUrl(req, imageData);
-
-    return imageUrl;
-};
-
-// Replace this function with the actual logic for generating the image URL
-const generateImageUrl = (req, imageData) => {
-    // Your logic to generate the image URL based on the image data
-    // For example, if images are stored on the server, you can construct the URL
-    // For now, let's assume the image data is a file name
-    return `${req.protocol}://${req.get('host')}/uploads/${imageData}`;
+// Function to get the image URL based on the image data from Firebase Storage
+const getImageUrl = async (req, imageData) => {
+    try {
+        const storage = getStorage();
+        const imageRef = ref(storage, 'userimages/' + imageData);
+        const imageUrl = await getDownloadURL(imageRef);
+        return imageUrl;
+    } catch (error) {
+        console.error('Error generating image URL:', error);
+        return null;
+    }
 };
