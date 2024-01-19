@@ -1,31 +1,19 @@
 import db from "../db.js";
 import bcrypt from "bcryptjs";
-import multer from "multer";
-import path from 'path';
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { initializeApp } from "firebase/app";
-import firebaseConfig from '../config/firebaseConfig.js';
+import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 
-initializeApp(firebaseConfig);
+export const editUser = (req, res) => {
+    const userId = req.params.userId;
+    const { username, email, password, phone_no, description, image } = req.body;
 
-export const editUser = async (req, res) => {
-    try {
-        const userId = req.params.userId;
-        const { username, email, password, phone_no, description } = req.body;
+    // Check if the user exists
+    db.query("SELECT * FROM users WHERE id = ?", [userId], async (err, results) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ message: "Internal Server Error" });
+        }
 
-        // Check if the user exists
-        const existingUser = await new Promise((resolve, reject) => {
-            db.query('SELECT * FROM users WHERE id = ?', [userId], async (error, results) => {
-                if (error) {
-                    console.error('Error checking existing user:', error);
-                    reject(error);
-                } else {
-                    resolve(results);
-                }
-            });
-        });
-
-        if (existingUser.length === 0) {
+        if (results.length === 0) {
             return res.status(404).json({ message: "User not found" });
         }
 
@@ -33,42 +21,55 @@ export const editUser = async (req, res) => {
             return res.status(400).json({ message: "Password must be at least 6 characters long" });
         }
 
+        const existingUser = results[0];
+
         const updatedUser = {
-            username: username || existingUser[0].username,
-            email: email || existingUser[0].email,
-            phone_no: phone_no || existingUser[0].phone_no,
-            description: description || existingUser[0].description,
+            username: username || existingUser.username,
+            email: email || existingUser.email,
+            phone_no: phone_no || existingUser.phone_no,
+            description: description || existingUser.description,
         };
 
         if (password) {
-            const hashedPassword = await bcrypt.hash(password, 8);
-            updatedUser.password = hashedPassword;
-        }
-
-        if (req.file) {
-            // If a new image is provided, upload it to Firebase Storage
-            const filename = Date.now() + '_' + Math.round(Math.random() * 1E9) + path.extname(req.file.originalname);
-            const storage = getStorage();
-            const storageRef = ref(storage, 'userimages/' + filename);
-            const snapshot = await uploadBytes(storageRef, req.file.buffer);
-            updatedUser.image = filename; // Update the image filename in the database
-        }
-
-        // Use async/await with the db.query function
-        await new Promise((resolve, reject) => {
-            db.query("UPDATE users SET ? WHERE id = ?", [updatedUser, userId], (error, results) => {
-                if (error) {
-                    console.error('Error updating user:', error);
-                    reject(error);
-                } else {
-                    resolve(results);
+            bcrypt.hash(password, 8, async (hashErr, hashedPassword) => {
+                if (hashErr) {
+                    console.error(hashErr);
+                    return res.status(500).json({ message: "Internal Server Error" });
                 }
-            });
-        });
 
-        res.json({ message: "User updated successfully" });
-    } catch (error) {
-        console.error('Unexpected error:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
+                updatedUser.password = hashedPassword;
+                await updateUser();
+            });
+        } else {
+            await updateUser();
+        }
+
+        async function updateUser() {
+            if (image) {
+                // Delete the existing image from storage
+                const storage = getStorage();
+                const existingImageRef = ref(storage, 'userimages/' + existingUser.image);
+                await deleteObject(existingImageRef);
+
+                // Upload the new image
+                const filename = Date.now() + '_' + Math.round(Math.random() * 1E9) + path.extname(req.file.originalname);
+                const storageRef = ref(storage, 'userimages/' + filename);
+                await uploadBytes(storageRef, req.file.buffer);
+
+                updatedUser.image = filename;
+            } else {
+                updatedUser.image = existingUser.image;
+            }
+
+            // Update the user in the database
+            db.query("UPDATE users SET ? WHERE id = ?", [updatedUser, userId], (updateErr) => {
+                if (updateErr) {
+                    console.error(updateErr);
+                    return res.status(500).json({ message: "Internal Server Error" });
+                }
+
+                res.json({ message: "User updated successfully" });
+            });
+        }
+    });
 };
