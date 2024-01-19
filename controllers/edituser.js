@@ -7,7 +7,7 @@ export const editUser = async (req, res) => {
     const { username, email, password, phone_no, image, description } = req.body;
 
     //check if user exist
-    const userExist = db.query("SELECT * FROM users WHERE id = ?",[userId]);
+    const userExist = await db.query("SELECT * FROM users WHERE id = ?",[userId]);
     if(userExist.length ===0){
         return res.status(404).json({ message: "User not found" });
     }
