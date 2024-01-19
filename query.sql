@@ -4,7 +4,7 @@ CREATE TABLE users (
     email VARCHAR(255),
     password VARCHAR(255),
     phone_no VARCHAR(15),
-    image BYTEA, -- BYTEA is used for binary data (equivalent to LONGBLOB)
+    image VARCHAR(1000), -- BYTEA is used for binary data (equivalent to LONGBLOB)
     description TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
