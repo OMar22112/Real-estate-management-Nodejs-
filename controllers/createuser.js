@@ -51,7 +51,7 @@ export const createUser = async (req, res) => {
 
     const filename = Date.now() + '_' + Math.round(Math.random() * 1E9) + path.extname(req.file.originalname);
     const storage = getStorage();
-    const storageRef = ref(storage, 'images/' + filename);
+    const storageRef = ref(storage, 'userimages/' + filename);
     const snapshot = await uploadBytes(storageRef, req.file.buffer);
     const imageUrl = await getDownloadURL(snapshot.ref, false);
 
