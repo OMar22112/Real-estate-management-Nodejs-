@@ -22,26 +22,33 @@ export const getAllProperties = async (req, res) => {
       return res.status(404).json({ message: 'No properties found' });
     }
 
-    // Fetch associated images with full URLs for each property
-    const propertiesWithImages = await Promise.all(properties.map(async (property) => {
-      // Fetch images for the current property from the 'images' table
-      const images = await new Promise((resolve, reject) => {
-        db.query("SELECT image_filename FROM images WHERE property_id = ?", [property.id], (err, results) => {
-          if (err) {
-            console.error('Error fetching images for property from the database:', err);
-            reject(err);
-          } else {
-            const imageUrls = results.map(async (result) => {
-              const imageUrl = await generateImageUrl(result.image_filename);
-              return imageUrl;
-            });
-            resolve(imageUrls);
-          }
-        });
+    // Fetch associated images for all properties
+    const imageResults = await new Promise((resolve, reject) => {
+      db.query("SELECT property_id, image_filename FROM images WHERE property_id IN (?)", [properties.map(property => property.id)], (err, results) => {
+        if (err) {
+          console.error('Error fetching images for properties from the database:', err);
+          reject(err);
+        } else {
+          resolve(results);
+        }
       });
+    });
 
-      // Attach the image URLs array to the property object
-      return { ...property, imageUrls: await Promise.all(images) };
+    // Create a map of property_id to image_urls
+    const imageMap = imageResults.reduce((acc, result) => {
+      const imageUrl = `${baseUrl}/images/${result.image_filename}`;
+      if (!acc[result.property_id]) {
+        acc[result.property_id] = [imageUrl];
+      } else {
+        acc[result.property_id].push(imageUrl);
+      }
+      return acc;
+    }, {});
+
+    // Attach the image URLs array to the property object
+    const propertiesWithImages = properties.map(property => ({
+      ...property,
+      imageUrls: imageMap[property.id] || [],
     }));
 
     res.status(200).json({ properties: propertiesWithImages });
@@ -49,12 +56,4 @@ export const getAllProperties = async (req, res) => {
     console.error('Unexpected error:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
-};
-
-// Function to generate image URL based on filename
-const generateImageUrl = async (filename) => {
-  const storage = getStorage();
-  const storageRef = ref(storage, 'images/' + filename);
-  const imageUrl = await getDownloadURL(storageRef);
-  return baseUrl + imageUrl;
 };
