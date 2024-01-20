@@ -15,7 +15,7 @@ export const addProperties = async (req, res) => {
     // Validate required fields
     const requiredFields = [name, type, rooms, bedroom, bathroom, livings, space, has_garden, price, status];
     if (requiredFields.some(field => field === undefined || field === null || field === '')) {
-      return res.status(400).json({ error: 'All fields except admin_id and user_id are required.' });
+      return res.status(400).json({ error: 'All fields except are required.' });
     }
 
     // Validate image upload (min 1 image, max 5 images)

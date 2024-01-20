@@ -2,7 +2,9 @@
 import express from 'express';
 import { addProperties } from '../controllers/properties.js';
 import { getAllProperties } from '../controllers/allproperties.js';
+import { userAddProperties } from '../user_controllers/useraddProperty.js';
 import { authenticateAdmin } from "../Middlewares/adminAuthMiddleware.js";
+import { authenticateUser } from "../Middlewares/userAuthMiddleware.js"
 import multer from "multer";
 
 // Create a router
@@ -14,6 +16,6 @@ const upload = multer({
 });
 // Route to add a property, protected with authenticateAdmin middleware
 router.post('/add', authenticateAdmin, upload.array("images", 5), addProperties);
-router.get('/all',authenticateAdmin, getAllProperties);
-// Export the router
+router.post('/useradd', authenticateUser, upload.array("images", 5), userAddProperties);
+router.get('/all',authenticateAdmin, getAllProperties);  // Export the router
 export default router;
