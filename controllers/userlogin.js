@@ -44,7 +44,7 @@ export const userLogIn = async (req, res) => {
     const token = jwt.sign(
       { userId: user[0].id, username: user[0].username, email: user[0].email },
       process.env.USERTOKEN,
-      { expiresIn: "1h" }
+      { expiresIn: "7d" }
     );
 
     // Return the token in the Bearer Token format
