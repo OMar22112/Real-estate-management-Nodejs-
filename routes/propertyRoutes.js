@@ -4,6 +4,7 @@ import { addProperties } from '../controllers/properties.js';
 import { getAllProperties } from '../controllers/allproperties.js';
 import { addImageOfProperty } from '../controllers/addImageofproperty.js';
 import { editProperties } from '../controllers/editProperties.js';
+import { deleteImageOfProperty } from '../controllers/deleteimageofproperty.js';
 import { userAddProperties } from '../user_controllers/useraddProperty.js';
 import { getAllPropertiesByUserId } from '../user_controllers/getAllPropertiesByUserId.js';
 import { authenticateAdmin } from "../Middlewares/adminAuthMiddleware.js";
@@ -24,5 +25,7 @@ router.post('/addimage/:propertyId', authenticateAdmin, upload.array("images", 5
 router.get('/all',authenticateAdmin, getAllProperties);  // Export the router
 router.get('/enduserall',getAllProperties);  // Export the router
 router.post('/editproperties/:propertyId',authenticateAdmin,upload.array("images", 5), editProperties);  // Export the router
-router.get('/userProperty',authenticateUser, getAllPropertiesByUserId);  // Export the router
+router.get('/userProperty',authenticateUser, getAllPropertiesByUserId);
+router.delete('/deleteimage/:propertyId/:imageId', authenticateAdmin, deleteImageOfProperty); // New route for deleting an image
+  // Export the router
 export default router;
