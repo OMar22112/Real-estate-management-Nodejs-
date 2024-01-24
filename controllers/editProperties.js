@@ -33,6 +33,8 @@ export const editProperties = async (req, res) => {
       return res.status(404).json({ message: "Property not found" });
     }
 
+    console.log('Existing Property:', existingProperty[0]);
+
     // Validate image upload (min 1 image, max 5 images)
     const images = req.files;
     if (images && (images.length < 1 || images.length > 5)) {
@@ -41,15 +43,15 @@ export const editProperties = async (req, res) => {
 
     // Update property data in the database
     const updatedProperty = {
-        name: name || existingProperty[0].name,
-        type: type || existingProperty[0].type,
-        rooms: rooms || existingProperty[0].rooms,
-        bedroom: bedroom || existingProperty[0].bedroom,
-        bathroom: bathroom || existingProperty[0].bathroom,
-        livings: livings || existingProperty[0].livings,
-        space: space || existingProperty[0].space,
-        has_garden: has_garden || existingProperty[0].has_garden,
-        price: price || existingProperty[0].price,
+      name: name || existingProperty[0].name,
+      type: type || existingProperty[0].type,
+      rooms: rooms || existingProperty[0].rooms,
+      bedroom: bedroom || existingProperty[0].bedroom,
+      bathroom: bathroom || existingProperty[0].bathroom,
+      livings: livings || existingProperty[0].livings,
+      space: space || existingProperty[0].space,
+      has_garden: has_garden || existingProperty[0].has_garden,
+      price: price || existingProperty[0].price,
     };
 
     // If images are provided, update images in the database
@@ -58,6 +60,7 @@ export const editProperties = async (req, res) => {
       const existingImagePromises = existingProperty.map(async property => {
         const oldStorageRef = ref(getStorage(), 'images/' + property.image_filename);
         await deleteObject(oldStorageRef);
+        console.log('Deleted existing image:', property.image_filename);
       });
 
       await Promise.all(existingImagePromises);
@@ -84,11 +87,14 @@ export const editProperties = async (req, res) => {
           });
         });
 
+        console.log('Inserted new image:', filename);
+
         return { insertId: imageInsertResult.insertId, imageUrl: imageUrl };
       });
 
       // Wait for all image insertions to complete
       const imageInsertResults = await Promise.all(imageInsertPromises);
+      console.log('Image Insert Results:', imageInsertResults);
     }
 
     // Use async/await with the db.query function to update property data
@@ -98,6 +104,7 @@ export const editProperties = async (req, res) => {
           console.error('Error updating property:', error);
           reject(error);
         } else {
+          console.log('Property updated successfully');
           resolve(results);
         }
       });
