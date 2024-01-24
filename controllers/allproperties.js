@@ -1,7 +1,7 @@
 import db from "../db.js";
 import { getStorage, ref, getDownloadURL } from "firebase/storage";
 
-const baseUrl = 'https://your-image-base-url.com/';
+const baseUrl = 'https://storage.googleapis.com/your-firebase-project-id.appspot.com/';
 
 export const getAllProperties = async (req, res) => {
   try {
@@ -52,7 +52,6 @@ export const getAllProperties = async (req, res) => {
     });
 
     // Create a map of property_id to image_urls
-
     const imageMap = imageResults.reduce((acc, result) => {
       const imageUrl = getDownloadURL(ref(getStorage(), `images/${result.image_filename}`));
       if (!acc[result.property_id]) {
@@ -62,7 +61,6 @@ export const getAllProperties = async (req, res) => {
       }
       return acc;
     }, {});
-
 
     // Attach the image URLs array to the property object
     const propertiesWithImages = propertiesResult.map(property => ({
