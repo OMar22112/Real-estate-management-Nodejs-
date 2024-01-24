@@ -20,7 +20,7 @@ const upload = multer({
 // Route to add a property, protected with authenticateAdmin middleware
 router.post('/add', authenticateAdmin, upload.array("images", 5), addProperties);
 router.post('/useradd', authenticateUser, upload.array("images", 5), userAddProperties);
-router.post('/addimage/:propertyId', authenticateUser, upload.array("images", 5), addImageOfProperty);
+router.post('/addimage/:propertyId', authenticateAdmin, upload.array("images", 5), addImageOfProperty);
 router.get('/all',authenticateAdmin, getAllProperties);  // Export the router
 router.get('/enduserall',getAllProperties);  // Export the router
 router.post('/editproperties/:propertyId',authenticateAdmin,upload.array("images", 5), editProperties);  // Export the router
