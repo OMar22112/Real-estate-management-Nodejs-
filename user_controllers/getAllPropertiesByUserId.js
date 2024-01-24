@@ -5,7 +5,7 @@ import firebaseConfig from '../config/firebaseConfig.js';
 
 initializeApp(firebaseConfig);
 
-const baseUrl = 'https://your-image-base-url.com/';
+const baseUrl = 'https://storage.googleapis.com/your-firebase-project-id.appspot.com/';
 
 export const getAllPropertiesByUserId = async (req, res) => {
   try {
@@ -61,20 +61,15 @@ export const getAllPropertiesByUserId = async (req, res) => {
     });
 
     // Create a map of property_id to image_urls
-    const imageMap = imageResults.reduce((acc, result) => {
-      const imageUrl = `${baseUrl}/images/${result.image_filename}`;
-      if (!acc[result.property_id]) {
-        acc[result.property_id] = [imageUrl];
-      } else {
-        acc[result.property_id].push(imageUrl);
-      }
-      return acc;
-    }, {});
+    const imageMap = await Promise.all(imageResults.map(async (result) => {
+      const imageUrl = await getDownloadURL(ref(getStorage(), `images/${result.image_filename}`));
+      return { property_id: result.property_id, imageUrl };
+    }));
 
     // Attach the image URLs array to the property object
     const propertiesWithImages = propertiesResult.map(property => ({
       ...property,
-      imageUrls: imageMap[property.id] || [],
+      imageUrls: imageMap.filter(image => image.property_id === property.id).map(image => image.imageUrl),
     }));
 
     res.status(200).json({
