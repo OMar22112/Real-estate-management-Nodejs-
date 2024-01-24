@@ -21,6 +21,6 @@ router.post('/add', authenticateAdmin, upload.array("images", 5), addProperties)
 router.post('/useradd', authenticateUser, upload.array("images", 5), userAddProperties);
 router.get('/all',authenticateAdmin, getAllProperties);  // Export the router
 router.get('/enduserall',getAllProperties);  // Export the router
-router.post('/editproperties/:propertyId',authenticateAdmin, editProperties);  // Export the router
+router.post('/editproperties/:propertyId',authenticateAdmin,upload.array("images", 5), editProperties);  // Export the router
 router.get('/userProperty',authenticateUser, getAllPropertiesByUserId);  // Export the router
 export default router;
