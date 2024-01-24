@@ -2,7 +2,7 @@ import db from "../db.js";
 import bcrypt from "bcryptjs";
 import multer from "multer";
 import path from 'path';
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 import { initializeApp } from "firebase/app";
 import firebaseConfig from '../config/firebaseConfig.js';
 
@@ -49,13 +49,19 @@ export const editUser = async (req, res) => {
             updatedUser.password = hashedPassword;
         }
 
+        // If a new image is provided, upload it to Firebase Storage
         if (req.file) {
-            // If a new image is provided, upload it to Firebase Storage
             const filename = Date.now() + '_' + Math.round(Math.random() * 1E9) + path.extname(req.file.originalname);
             const storage = getStorage();
             const storageRef = ref(storage, 'userimages/' + filename);
             const snapshot = await uploadBytes(storageRef, req.file.buffer);
             updatedUser.image = filename; // Update the image filename in the database
+
+            // If the user had an existing image, delete it from Firebase Storage
+            if (existingUser[0].image) {
+                const oldStorageRef = ref(storage, 'userimages/' + existingUser[0].image);
+                await deleteObject(oldStorageRef);
+            }
         }
 
         // Use async/await with the db.query function
@@ -76,6 +82,7 @@ export const editUser = async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
+
 
 // Add the upload middleware to handle file uploads
 
