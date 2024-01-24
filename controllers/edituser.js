@@ -14,7 +14,7 @@ const upload = multer({ storage: storage });
 
 export const editUser = async (req, res) => {
     try {
-        const userId = req.params.userId || req.query.id;
+        const userId = req.params.userId;
         const { username, email, password, phone_no, description } = req.body;
 
         // Check if the user exists

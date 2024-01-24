@@ -2,6 +2,7 @@
 import express from 'express';
 import { addProperties } from '../controllers/properties.js';
 import { getAllProperties } from '../controllers/allproperties.js';
+import { editProperties } from '../controllers/editProperties.js';
 import { userAddProperties } from '../user_controllers/useraddProperty.js';
 import { getAllPropertiesByUserId } from '../user_controllers/getAllPropertiesByUserId.js';
 import { authenticateAdmin } from "../Middlewares/adminAuthMiddleware.js";
@@ -20,5 +21,6 @@ router.post('/add', authenticateAdmin, upload.array("images", 5), addProperties)
 router.post('/useradd', authenticateUser, upload.array("images", 5), userAddProperties);
 router.get('/all',authenticateAdmin, getAllProperties);  // Export the router
 router.get('/enduserall',getAllProperties);  // Export the router
+router.get('/editproperties/:propertyId',authenticateAdmin, editProperties);  // Export the router
 router.get('/userProperty',authenticateUser, getAllPropertiesByUserId);  // Export the router
 export default router;
