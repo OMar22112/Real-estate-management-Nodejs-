@@ -11,7 +11,7 @@ export const getAllProperties = async (req, res) => {
     const offset = (page - 1) * pageSize;
 
     const propertiesQuery = `
-      SELECT properties.id, properties.name, properties.type, properties.rooms, properties.bedroom, properties.bathroom, properties.livings, properties.space, properties.has_garden, properties.price, properties.status, properties.admin_id, admin.username AS admin_username, admin.type AS admin_type, properties.created_at, GROUP_CONCAT(images.image_filename) AS image_filenames
+      SELECT properties.id, properties.name, properties.type, properties.rooms, properties.bedroom, properties.bathroom, properties.livings, properties.space, properties.has_garden, properties.price, properties.status, admin.username AS admin_username, admin.type AS admin_type, properties.created_at, GROUP_CONCAT(images.image_filename) AS image_filenames
       FROM properties
       LEFT JOIN admins AS admin ON properties.admin_id = admin.id
       LEFT JOIN images ON properties.id = images.property_id
