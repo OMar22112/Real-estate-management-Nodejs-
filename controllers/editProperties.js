@@ -55,49 +55,49 @@ export const editProperties = async (req, res) => {
     };
 
     // If images are provided, update images in the database
-    if (images) {
-      // Delete existing images associated with the property from Firebase Storage
-      const existingImagePromises = existingProperty.map(async property => {
-        if (property.image_filename) {
-          const oldStorageRef = ref(getStorage(), 'images/' + property.image_filename);
-          await deleteObject(oldStorageRef);
-          console.log('Deleted existing image:', property.image_filename);
-        }
-      });
+    // if (images) {
+    //   // Delete existing images associated with the property from Firebase Storage
+    //   const existingImagePromises = existingProperty.map(async property => {
+    //     if (property.image_filename) {
+    //       const oldStorageRef = ref(getStorage(), 'images/' + property.image_filename);
+    //       await deleteObject(oldStorageRef);
+    //       console.log('Deleted existing image:', property.image_filename);
+    //     }
+    //   });
 
-      await Promise.all(existingImagePromises);
+    //   await Promise.all(existingImagePromises);
 
-      // Insert new images into Firebase Storage and update the 'images' table
-      const imageInsertPromises = images.map(async image => {
-        const filename = Date.now() + '_' + Math.round(Math.random() * 1E9) + '_' + image.originalname;
-        const storageRef = ref(getStorage(), 'images/' + filename);
-        const snapshot = await uploadBytes(storageRef, image.buffer);
-        const imageUrl = await getDownloadURL(snapshot.ref, false);
+    //   // Insert new images into Firebase Storage and update the 'images' table
+    //   const imageInsertPromises = images.map(async image => {
+    //     const filename = Date.now() + '_' + Math.round(Math.random() * 1E9) + '_' + image.originalname;
+    //     const storageRef = ref(getStorage(), 'images/' + filename);
+    //     const snapshot = await uploadBytes(storageRef, image.buffer);
+    //     const imageUrl = await getDownloadURL(snapshot.ref, false);
 
-        // Insert image data into the 'images' table
-        const imageInsertResult = await new Promise((resolve, reject) => {
-          db.query("INSERT INTO images SET ?", {
-            property_id: propertyId,
-            image_filename: filename
-          }, (err, result) => {
-            if (err) {
-              console.error('Error inserting image into the database:', err);
-              reject(err);
-            } else {
-              resolve(result);
-            }
-          });
-        });
+    //     Insert image data into the 'images' table
+    //     const imageInsertResult = await new Promise((resolve, reject) => {
+    //       db.query("INSERT INTO images SET ?", {
+    //         property_id: propertyId,
+    //         image_filename: filename
+    //       }, (err, result) => {
+    //         if (err) {
+    //           console.error('Error inserting image into the database:', err);
+    //           reject(err);
+    //         } else {
+    //           resolve(result);
+    //         }
+    //       });
+    //     });
 
-        console.log('Inserted new image:', filename);
+    //     console.log('Inserted new image:', filename);
 
-        return { insertId: imageInsertResult.insertId, imageUrl: imageUrl };
-      });
+    //     return { insertId: imageInsertResult.insertId, imageUrl: imageUrl };
+    //   });
 
       // Wait for all image insertions to complete
-      const imageInsertResults = await Promise.all(imageInsertPromises);
-      console.log('Image Insert Results:', imageInsertResults);
-    }
+    //   const imageInsertResults = await Promise.all(imageInsertPromises);
+    //   console.log('Image Insert Results:', imageInsertResults);
+    // }
 
     // Use async/await with the db.query function to update property data
     await new Promise((resolve, reject) => {
