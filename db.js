@@ -26,11 +26,13 @@ function connectDatabase() {
 // Initial connection
 connectDatabase();
 
-
 // Handle MySQL connection errors
 db.on("error", (error) => {
   console.error("MySQL connection error:", error.message);
-  
+  if (error.code === "PROTOCOL_ENQUEUE_AFTER_FATAL_ERROR") {
+    console.log("Attempting to reconnect...");
+    connectDatabase();
+  }
 });
 
 export default db;
