@@ -53,7 +53,7 @@ export const getAllProperties = async (req, res) => {
 
     // Create a map of property_id to image_urls
     const imageMap = imageResults.reduce((acc, result) => {
-      const imageUrl = getDownloadURL(ref(getStorage(), `images/${result.image_filename}`));
+      const imageUrl = `${baseUrl}/images/${result.image_filename}`;
       if (!acc[result.property_id]) {
         acc[result.property_id] = [imageUrl];
       } else {
