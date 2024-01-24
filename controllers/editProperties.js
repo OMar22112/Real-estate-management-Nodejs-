@@ -15,7 +15,7 @@ const upload = multer({ storage: storage });
 export const editProperties = async (req, res) => {
   try {
     const propertyId = req.params.propertyId;
-    const { name, type, rooms, bedroom, bathroom, livings, space, has_garden, price, status } = req.body;
+    const { name, type, rooms, bedroom, bathroom, livings, space, has_garden, price } = req.body;
 
     // Check if the property exists
     const existingProperty = await new Promise((resolve, reject) => {
@@ -41,16 +41,15 @@ export const editProperties = async (req, res) => {
 
     // Update property data in the database
     const updatedProperty = {
-      name: name || existingProperty[0].name,
-      type: type || existingProperty[0].type,
-      rooms: rooms || existingProperty[0].rooms,
-      bedroom: bedroom || existingProperty[0].bedroom,
-      bathroom: bathroom || existingProperty[0].bathroom,
-      livings: livings || existingProperty[0].livings,
-      space: space || existingProperty[0].space,
-      has_garden: has_garden || existingProperty[0].has_garden,
-      price: price || existingProperty[0].price,
-      status: status || existingProperty[0].status,
+        name: name || existingProperty[0].name,
+        type: type || existingProperty[0].type,
+        rooms: rooms || existingProperty[0].rooms,
+        bedroom: bedroom || existingProperty[0].bedroom,
+        bathroom: bathroom || existingProperty[0].bathroom,
+        livings: livings || existingProperty[0].livings,
+        space: space || existingProperty[0].space,
+        has_garden: has_garden || existingProperty[0].has_garden,
+        price: price || existingProperty[0].price,
     };
 
     // If images are provided, update images in the database
