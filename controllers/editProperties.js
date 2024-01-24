@@ -36,10 +36,10 @@ export const editProperties = async (req, res) => {
     console.log('Existing Property:', existingProperty[0]);
 
     // Validate image upload (min 1 image, max 5 images)
-    const images = req.files;
-    if (images && (images.length < 1 || images.length > 5)) {
-      return res.status(400).json({ error: 'You must upload between 1 and 5 images.' });
-    }
+    // const images = req.files;
+    // if (images && (images.length < 1 || images.length > 5)) {
+    //   return res.status(400).json({ error: 'You must upload between 1 and 5 images.' });
+    // }
 
     // Update property data in the database
     const updatedProperty = {
