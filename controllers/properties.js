@@ -9,7 +9,7 @@ export const addProperties = async (req, res) => {
   try {
     const { name, type, rooms, bedroom, bathroom, livings, space, price } = req.body;
 
-    const has_garden = parseInt(req.body.has_garden) || 0;
+    const has_garden = parseInt(req.body.has_garden) ;
     const status = parseInt(req.body.status) || 0;
 
     // Extract admin ID from the authenticated user
