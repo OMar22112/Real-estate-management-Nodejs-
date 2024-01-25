@@ -29,7 +29,6 @@ router.get("/allusers", authenticateAdmin, showAllUsers);
 router.get("/newestusers", authenticateAdmin, newestUsers);
 router.get("/users", authenticateAdmin, usersByField);
 router.post("/userlogin",userLogIn);
-//router.post("/login",login);
 
 export default router; 
 
