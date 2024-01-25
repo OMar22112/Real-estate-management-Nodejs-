@@ -1,6 +1,6 @@
 // Import necessary modules
 import db from "../db.js";
-import { getStorage, ref, deleteObject } from "firebase/storage";
+import { getStorage, ref, listAll, deleteObject } from "firebase/storage";
 
 // Controller function to delete a property and its associated images
 export const deleteProperty = async (req, res) => {
@@ -12,10 +12,11 @@ export const deleteProperty = async (req, res) => {
       // Delete images associated with the property from Firebase Storage
       const storage = getStorage();
       const imagesRef = ref(storage, 'images/');
-      const imagesSnapshot = await getDownloadURL(imagesRef);
-      const imagesList = imagesSnapshot.items;
+      const imagesList = await listAll(imagesRef);
 
-      const propertyImages = imagesList.filter((image) => image.name.startsWith(`images/${propertyId}_`));
+      const propertyImages = imagesList.items.filter((image) =>
+        image.name.startsWith(`images/${propertyId}_`)
+      );
 
       const deleteImagesPromises = propertyImages.map(async (imageRef) => {
         await deleteObject(imageRef);
