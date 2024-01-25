@@ -5,6 +5,7 @@ import { getAllProperties } from '../controllers/allproperties.js';
 import { addImageOfProperty } from '../controllers/addImageofproperty.js';
 import { editProperties } from '../controllers/editProperties.js';
 import { editPropertyStatus } from "../controllers/editpropertystatus.js"
+import { deleteProperty } from "../controllers/deleteproperty.js"
 import { deleteImageOfProperty } from '../controllers/deleteimageofproperty.js';
 import { userAddProperties } from '../user_controllers/useraddProperty.js';
 import { getAllPropertiesByUserId } from '../user_controllers/getAllPropertiesByUserId.js';
@@ -28,6 +29,7 @@ router.get('/enduserall',getAllProperties);  // Export the router
 router.post('/editproperties/:propertyId',authenticateAdmin,upload.array("images", 5), editProperties);  // Export the router
 router.get('/userProperty',authenticateUser, getAllPropertiesByUserId);
 router.delete('/deleteimage/:propertyId/:imageId', authenticateAdmin, deleteImageOfProperty); // New route for deleting an image
+router.delete('/deleteproperty/:propertyId', authenticateAdmin, deleteProperty); // New route for deleting an image
 router.post('/editstatus/:propertyId', authenticateAdmin, editPropertyStatus); // New route for deleting an image
   // Export the router
 export default router;
