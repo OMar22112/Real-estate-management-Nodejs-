@@ -9,6 +9,9 @@ export const addProperties = async (req, res) => {
   try {
     const { name, type, rooms, bedroom, bathroom, livings, space, has_garden, price, status } = req.body;
 
+    const hasGardenValue = has_garden ? 1 : 0;
+    const statusValue = status ? 1 : 0;
+
     // Extract admin ID from the authenticated user
     const adminId = req.user.userId;
 
@@ -34,9 +37,9 @@ export const addProperties = async (req, res) => {
         bathroom: bathroom,
         livings: livings,
         space: space,
-        has_garden: has_garden,
+        has_garden: hasGardenValue,
         price: price,
-        status: status,
+        status: statusValue,
         admin_id: adminId,
         user_id: null
       }, (err, result) => {
