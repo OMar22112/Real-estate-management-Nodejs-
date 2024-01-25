@@ -7,10 +7,10 @@ initializeApp(firebaseConfig);
 
 export const addProperties = async (req, res) => {
   try {
-    const { name, type, rooms, bedroom, bathroom, livings, space, has_garden, price, status } = req.body;
+    const { name, type, rooms, bedroom, bathroom, livings, space, price } = req.body;
 
-    const hasGardenValue = has_garden ? 1 : 0;
-    const statusValue = status ? 1 : 0;
+    const has_garden = parseInt(req.body.has_garden) || 0;
+    const status = parseInt(req.body.status) || 0;
 
     // Extract admin ID from the authenticated user
     const adminId = req.user.userId;
@@ -37,9 +37,9 @@ export const addProperties = async (req, res) => {
         bathroom: bathroom,
         livings: livings,
         space: space,
-        has_garden: hasGardenValue,
+        has_garden: has_garden,
         price: price,
-        status: statusValue,
+        status: status,
         admin_id: adminId,
         user_id: null
       }, (err, result) => {
@@ -89,7 +89,6 @@ export const addProperties = async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
-
 
 
 
