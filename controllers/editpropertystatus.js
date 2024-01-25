@@ -7,7 +7,12 @@ initializeApp(firebaseConfig);
 export const editPropertyStatus = async (req, res) => {
   try {
     const propertyId = req.params.propertyId;
-    const status  = parseInt(req.body.status);
+    const status = parseInt(req.body.status);
+
+    // Check if the parsed status is a valid number (0 or 1)
+    if (isNaN(status) || (status !== 0 && status !== 1)) {
+      return res.status(400).json({ error: 'Invalid status value. Must be 0 or 1.' });
+    }
 
     // Use async/await with the db.query function to update property status
     await new Promise((resolve, reject) => {
