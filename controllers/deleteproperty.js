@@ -3,7 +3,7 @@ import db from "../db.js";
 
 export const deleteProperty = async (req, res) => {
   try {
-    const propertyId = req.params.propertyId;
+    const propertyId = parseInt(req.params.propertyId);
 
     if (!propertyId) {
       return res.status(400).json({ error: 'Property ID is required.' });
