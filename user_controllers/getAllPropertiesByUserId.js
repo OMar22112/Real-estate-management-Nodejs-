@@ -19,9 +19,9 @@ export const getAllPropertiesByUserId = async (req, res) => {
 
     // Fetch properties added by the user with the given user ID with pagination
     const propertiesQuery = `
-      SELECT properties.id, properties.name, properties.type, properties.rooms, properties.bedroom, properties.bathroom, properties.livings, properties.space, properties.has_garden, properties.price, properties.status, user.username AS username, user.type AS user_type, properties.created_at, GROUP_CONCAT(images.image_filename) AS image_filenames
+      SELECT properties.id, properties.name, properties.type, properties.rooms, properties.bedroom, properties.bathroom, properties.livings, properties.space, properties.has_garden, properties.price, properties.status, users.username AS username, users.type AS user_type, properties.created_at, GROUP_CONCAT(images.image_filename) AS image_filenames
       FROM properties
-      LEFT JOIN users AS user ON properties.user_id = user.id
+      LEFT JOIN users ON properties.user_id = users.id
       LEFT JOIN images ON properties.id = images.property_id
       WHERE properties.user_id = ?
       GROUP BY properties.id
