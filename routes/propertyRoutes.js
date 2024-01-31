@@ -12,6 +12,7 @@ import { getAllPropertiesByUserId } from '../user_controllers/getAllPropertiesBy
 import { authenticateAdmin } from "../Middlewares/adminAuthMiddleware.js";
 import { authenticateUser } from "../Middlewares/userAuthMiddleware.js"
 import { userEditProperties } from '../user_controllers/userUpdateProperty.js';
+import { userAddImage } from "../user_controllers/userAddImages.js"
 
 import multer from "multer";
 
@@ -34,8 +35,8 @@ router.delete('/deleteimage/:propertyId/:imageId', authenticateAdmin, deleteImag
 router.delete('/deleteproperty/:propertyId', authenticateAdmin, deleteProperty); // New route for deleting an image
 router.post('/editstatus/:propertyId', authenticateAdmin, editPropertyStatus); // New route for deleting an image
   
-router.post('/editproperty/:propertyId',authenticateUser,userEditProperties)
-//router.get('/editproperty/:propertId',authenticateUser, userEditProperties);
+router.post('/editproperty/:propertyId',authenticateUser,userEditProperties);
+router.post('/useraddimage/:propertyId',authenticateUser,userAddImage);
 
 // Export the router
 export default router;
