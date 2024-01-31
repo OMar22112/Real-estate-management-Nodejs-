@@ -19,6 +19,11 @@ export const userSearchForProperty = async (req, res) => {
         if (price) conditions.push(`price = ${parseFloat(price)}`);
         if (status !== undefined) conditions.push(`status = ${parseInt(status)}`);
 
+        // Check if the conditions include a user_id filter and if it matches the user ID from the token
+        if (conditions.some(condition => condition.includes("user_id")) && !conditions.includes(`user_id = ${userId}`)) {
+            return res.status(403).json({ message: "Unauthorized: You can only search for your own properties." });
+        }
+
         let query = "SELECT * FROM properties";
 
         if (conditions.length > 0) {
