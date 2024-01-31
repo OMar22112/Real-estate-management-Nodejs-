@@ -16,6 +16,7 @@ import { userAddImage } from "../user_controllers/userAddImages.js";
 import { userDeleteImage } from "../user_controllers/userDeleteImage.js";
 import { userChangeStatus } from "../user_controllers/userChangeStatus.js";
 import { userDeleteProperty } from "../user_controllers/userDeleteProperty.js";
+import { propertiesByField } from "../controllers/propertybyfild.js";
 
 
 import multer from "multer";
@@ -37,6 +38,8 @@ router.post('/editproperties/:propertyId',authenticateAdmin,upload.array("images
 router.delete('/deleteimage/:propertyId/:imageId', authenticateAdmin, deleteImageOfProperty); //Admin delete image from specific property
 router.delete('/deleteproperty/:propertyId', authenticateAdmin, deleteProperty); //Admin delete property 
 router.post('/editstatus/:propertyId', authenticateAdmin, editPropertyStatus); //Admin change status of property
+router.get('/search', authenticateAdmin, propertiesByField); //search for property
+
 
 //Users route
 router.post('/useradd', authenticateUser, upload.array("images", 5), userAddProperties);//User add property
