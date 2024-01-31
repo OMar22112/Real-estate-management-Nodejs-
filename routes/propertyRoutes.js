@@ -12,9 +12,11 @@ import { getAllPropertiesByUserId } from '../user_controllers/getAllPropertiesBy
 import { authenticateAdmin } from "../Middlewares/adminAuthMiddleware.js";
 import { authenticateUser } from "../Middlewares/userAuthMiddleware.js"
 import { userEditProperties } from '../user_controllers/userUpdateProperty.js';
-import { userAddImage } from "../user_controllers/userAddImages.js"
-import { userDeleteImage } from "../user_controllers/userDeleteImage.js"
-import { userChangeStatus } from "../user_controllers/userChangeStatus.js"
+import { userAddImage } from "../user_controllers/userAddImages.js";
+import { userDeleteImage } from "../user_controllers/userDeleteImage.js";
+import { userChangeStatus } from "../user_controllers/userChangeStatus.js";
+import { userDeleteProperty } from "../user_controllers/userDeleteProperty.js";
+
 
 import multer from "multer";
 
@@ -26,20 +28,26 @@ const upload = multer({
   },
 });
 // Route to add a property, protected with authenticateAdmin middleware
-router.post('/add', authenticateAdmin, upload.array("images", 5), addProperties);
-router.post('/useradd', authenticateUser, upload.array("images", 5), userAddProperties);
-router.post('/addimage/:propertyId', authenticateAdmin, upload.array("images", 5), addImageOfProperty);
-router.get('/all',authenticateAdmin, getAllProperties);  // Export the router
-router.get('/enduserall',getAllProperties);  // Export the router
-router.post('/editproperties/:propertyId',authenticateAdmin,upload.array("images", 5), editProperties);  // Export the router
-router.get('/userProperty',authenticateUser, getAllPropertiesByUserId);
-router.delete('/deleteimage/:propertyId/:imageId', authenticateAdmin, deleteImageOfProperty); // New route for deleting an image
-router.delete('/deleteproperty/:propertyId', authenticateAdmin, deleteProperty); // New route for deleting an image
-router.post('/editstatus/:propertyId', authenticateAdmin, editPropertyStatus); // New route for deleting an image
-  
-router.post('/editproperty/:propertyId',authenticateUser,userEditProperties);
-router.post('/userchangestatus/:propertyId',authenticateUser, userChangeStatus);
-router.post('/useraddimage/:propertyId',authenticateUser,upload.array('images', 5),userAddImage);
-router.delete('/userdeleteimage/:propertyId/:imageId', authenticateUser, userDeleteImage); // New route for deleting an image
+
+//Admins route
+router.post('/add', authenticateAdmin, upload.array("images", 5), addProperties);//Admin add property
+router.post('/addimage/:propertyId', authenticateAdmin, upload.array("images", 5), addImageOfProperty);//Admin add image to a Specific property
+router.get('/all',authenticateAdmin, getAllProperties);  //Admin show all properties
+router.post('/editproperties/:propertyId',authenticateAdmin,upload.array("images", 5), editProperties);  //Admin update propert information
+router.delete('/deleteimage/:propertyId/:imageId', authenticateAdmin, deleteImageOfProperty); //Admin delete image from specific property
+router.delete('/deleteproperty/:propertyId', authenticateAdmin, deleteProperty); //Admin delete property 
+router.post('/editstatus/:propertyId', authenticateAdmin, editPropertyStatus); //Admin change status of property
+
+//Users route
+router.post('/useradd', authenticateUser, upload.array("images", 5), userAddProperties);//User add property
+router.get('/userProperty',authenticateUser, getAllPropertiesByUserId);//User show all properties
+router.post('/editproperty/:propertyId',authenticateUser,userEditProperties);//User update his property
+router.post('/userchangestatus/:propertyId',authenticateUser, userChangeStatus);//User change his property status
+router.post('/useraddimage/:propertyId',authenticateUser,upload.array('images', 5),userAddImage);//user add image to his property
+router.delete('/userdeleteimage/:propertyId/:imageId', authenticateUser, userDeleteImage); //user delete image from his property
+router.delete('/userdeleteproperty/:propertyId', authenticateUser, userDeleteProperty); //user delete his property
+
+//guset route
+router.get('/enduserall',getAllProperties); //end user
 // Export the router
 export default router;
