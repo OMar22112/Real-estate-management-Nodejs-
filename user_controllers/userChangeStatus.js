@@ -4,7 +4,7 @@ import firebaseConfig from '../config/firebaseConfig.js';
 
 initializeApp(firebaseConfig);
 
-export const editPropertyStatus = async (req, res) => {
+export const userChangeStatus = async (req, res) => {
   try {
     const userId = req.user.userId;
     const propertyId = req.params.propertyId;
