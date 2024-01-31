@@ -36,7 +36,7 @@ router.delete('/deleteproperty/:propertyId', authenticateAdmin, deleteProperty);
 router.post('/editstatus/:propertyId', authenticateAdmin, editPropertyStatus); // New route for deleting an image
   
 router.post('/editproperty/:propertyId',authenticateUser,userEditProperties);
-router.post('/useraddimage/:propertyId',authenticateUser,userAddImage);
+router.post('/useraddimage/:propertyId',authenticateUser,upload.array('images', 5),userAddImage);
 
 // Export the router
 export default router;
