@@ -17,6 +17,7 @@ import { userDeleteImage } from "../user_controllers/userDeleteImage.js";
 import { userChangeStatus } from "../user_controllers/userChangeStatus.js";
 import { userDeleteProperty } from "../user_controllers/userDeleteProperty.js";
 import { propertiesByField } from "../controllers/propertybyfild.js";
+import { userSearchForProperty } from "../user_controllers/userSearchForProperty.js";
 
 
 import multer from "multer";
@@ -49,11 +50,13 @@ router.post('/userchangestatus/:propertyId',authenticateUser, userChangeStatus);
 router.post('/useraddimage/:propertyId',authenticateUser,upload.array('images', 5),userAddImage);//user add image to his property
 router.delete('/userdeleteimage/:propertyId/:imageId', authenticateUser, userDeleteImage); //user delete image from his property
 router.delete('/userdeleteproperty/:propertyId', authenticateUser, userDeleteProperty); //user delete his property
+router.get('/usersearch', authenticateUser, userSearchForProperty); //User search for property
+
 
 
 
 //guset route
 router.get('/enduserall',getAllProperties); //end user
-router.get('/gusetsearch', propertiesByField); //search for property
+router.get('/gusetsearch', propertiesByField); //guset search for property
 // Export the router
 export default router;
