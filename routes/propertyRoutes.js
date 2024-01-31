@@ -50,7 +50,10 @@ router.post('/useraddimage/:propertyId',authenticateUser,upload.array('images', 
 router.delete('/userdeleteimage/:propertyId/:imageId', authenticateUser, userDeleteImage); //user delete image from his property
 router.delete('/userdeleteproperty/:propertyId', authenticateUser, userDeleteProperty); //user delete his property
 
+
+
 //guset route
 router.get('/enduserall',getAllProperties); //end user
+router.get('/gusetsearch', propertiesByField); //search for property
 // Export the router
 export default router;
