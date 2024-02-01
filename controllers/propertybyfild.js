@@ -24,13 +24,32 @@ export const propertiesByField = async (req, res) => {
             query += ` WHERE ${conditions.join(" AND ")}`;
         }
 
+        // Function to get the image URLs based on the image data from Firebase Storage
+        const getImageUrls = async (propertyId) => {
+            try {
+                const imageQuery = `SELECT image_filename FROM images WHERE property_id = ${propertyId}`;
+                const imageRows = await db.query(imageQuery);
+
+                const storage = getStorage();
+                const imageUrls = imageRows.map((imageRow) => {
+                    const imageRef = ref(storage, `images/${imageRow.image_filename}`);
+                    return getDownloadURL(imageRef);
+                });
+
+                return Promise.all(imageUrls);
+            } catch (error) {
+                console.error(`Error generating image URLs:`, error);
+                return null;
+            }
+        };
+
         db.query(query, async (err, rows) => {
             if (!err) {
                 // Map through the rows and modify the image field
                 const sanitizedRows = await Promise.all(rows.map(async (property) => {
                     return {
                         ...property,
-                        images: property.images ? await getImageUrls('images', req, property.images) : null,
+                        images: property.id ? await getImageUrls(property.id) : null,
                     };
                 }));
 
@@ -43,20 +62,5 @@ export const propertiesByField = async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Internal Server Error" });
-    }
-};
-
-// Function to get the image URLs based on the image data from Firebase Storage
-export const getImageUrls = async (storagePath, req, imageDataArray) => {
-    try {
-        const storage = getStorage();
-        const imageUrls = await Promise.all(imageDataArray.map(async (imageData) => {
-            const imageRef = ref(storage, `${storagePath}/${imageData}`);
-            return await getDownloadURL(imageRef);
-        }));
-        return imageUrls;
-    } catch (error) {
-        console.error(`Error generating image URLs for ${storagePath}:`, error);
-        return null;
     }
 };
