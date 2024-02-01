@@ -50,7 +50,7 @@ router.post('/userchangestatus/:propertyId',authenticateUser, userChangeStatus);
 router.post('/useraddimage/:propertyId',authenticateUser,upload.array('images', 5),userAddImage);//user add image to his property
 router.delete('/userdeleteimage/:propertyId/:imageId', authenticateUser, userDeleteImage); //user delete image from his property
 router.delete('/userdeleteproperty/:propertyId', authenticateUser, userDeleteProperty); //user delete his property
-router.get('/usersearch', authenticateUser, userSearchForProperty); //User search for property
+//router.get('/usersearch', authenticateUser, userSearchForProperty); //User search for property
 
 
 
