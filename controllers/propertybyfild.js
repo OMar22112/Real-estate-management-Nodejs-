@@ -24,41 +24,53 @@ export const propertiesByField = async (req, res) => {
             query += ` WHERE ${conditions.join(" AND ")}`;
         }
 
-        // Function to get the image URLs based on the image data from Firebase Storage
-        const getImageUrls = async (propertyId) => {
-            try {
-                const imageQuery = `SELECT image_filename FROM images WHERE property_id = ${propertyId}`;
-                const imageRows = await db.query(imageQuery);
-
-                const storage = getStorage();
-                const imageUrls = imageRows.map((imageRow) => {
-                    const imageRef = ref(storage, `images/${imageRow.image_filename}`);
-                    return getDownloadURL(imageRef);
-                });
-
-                return Promise.all(imageUrls);
-            } catch (error) {
-                console.error(`Error generating image URLs:`, error);
-                return null;
-            }
-        };
-
-        db.query(query, async (err, rows) => {
-            if (!err) {
-                // Map through the rows and modify the image field
-                const sanitizedRows = await Promise.all(rows.map(async (property) => {
-                    return {
-                        ...property,
-                        images: property.id ? await getImageUrls(property.id) : null,
-                    };
-                }));
-
-                res.json(sanitizedRows);
-            } else {
-                console.log(err);
-                res.status(500).json({ message: "Internal Server Error" });
-            }
+        const rows = await new Promise((resolve, reject) => {
+            db.query(query, (err, result) => {
+                if (err) {
+                    console.error(err);
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
         });
+
+        const sanitizedRows = await Promise.all(rows.map(async (property) => {
+            // Function to get the image URLs based on the image data from Firebase Storage
+            const getImageUrls = async (propertyId) => {
+                try {
+                    const imageQuery = `SELECT image_filename FROM images WHERE property_id = ${propertyId}`;
+                    const imageRows = await new Promise((resolve, reject) => {
+                        db.query(imageQuery, (err, result) => {
+                            if (err) {
+                                console.error(err);
+                                reject(err);
+                            } else {
+                                resolve(result);
+                            }
+                        });
+                    });
+
+                    const storage = getStorage();
+                    const imageUrls = await Promise.all(imageRows.map(async (imageRow) => {
+                        const imageRef = ref(storage, `images/${imageRow.image_filename}`);
+                        return getDownloadURL(imageRef);
+                    }));
+
+                    return imageUrls;
+                } catch (error) {
+                    console.error(`Error generating image URLs:`, error);
+                    return null;
+                }
+            };
+
+            return {
+                ...property,
+                images: property.id ? await getImageUrls(property.id) : null,
+            };
+        }));
+
+        res.json(sanitizedRows);
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Internal Server Error" });
